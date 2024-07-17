@@ -1,0 +1,60 @@
+- name: Update and upgrade apt packages
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: dist
+
+- name: Install MicroK8s using snap
+  community.general.snap:
+    name: microk8s
+    classic: true
+
+- name: Create snap directory in home
+  ansible.builtin.file:
+    path: '{{ user_home }}/snap'
+    state: directory
+    owner: '{{ user_name }}'
+    group: '{{ user_name }}'
+    mode: '0755'
+
+- name: Change ownership of snap directory
+  ansible.builtin.file:
+    path: '{{ user_home }}/snap'
+    owner: '{{ user_name }}'
+    group: '{{ user_name }}'
+    recurse: true
+
+- name: Add user to microk8s group
+  ansible.builtin.user:
+    name: '{{ user_name }}'
+    groups: microk8s
+    append: true
+
+- name: Create .kube directory
+  ansible.builtin.file:
+    path: '{{ user_home }}/.kube'
+    state: directory
+    mode: '0700'
+    owner: '{{ user_name }}'
+    group: '{{ user_name }}'
+
+- name: Change ownership of .kube directory
+  ansible.builtin.file:
+    path: '{{ user_home }}/.kube'
+    owner: '{{ user_name }}'
+    recurse: true
+
+- name: Add kubectl alias to .bash_aliases
+  ansible.builtin.lineinfile:
+    path: '{{ user_home }}/.bash_aliases'
+    line: "alias kubectl='microk8s kubectl'"
+    create: true
+    owner: '{{ user_name }}'
+    group: '{{ user_name }}'
+    mode: '0644'
+
+- name: Enable kubectl bash completion in .bashrc
+  ansible.builtin.lineinfile:
+    path: '{{ user_home }}/.bashrc'
+    line: 'source <(kubectl completion bash)'
+    create: true
+    mode: '0644'

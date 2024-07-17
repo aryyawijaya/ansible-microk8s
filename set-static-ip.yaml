@@ -1,0 +1,5 @@
+- name: Set static IP
+  hosts: all # set ip host on command line
+  become: true
+  roles:
+    - static-ip

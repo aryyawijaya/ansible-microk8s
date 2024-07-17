@@ -1,0 +1,8 @@
+- name: Set up microk8s (kubernetes)
+  hosts: nodes
+  become: true
+  vars:
+    user_home: "{{ lookup('env', 'HOME') }}"
+    user_name: "{{ lookup('env', 'USER') }}"
+  roles:
+    - microk8s
